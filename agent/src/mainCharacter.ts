@@ -4,7 +4,7 @@ export const mainCharacter: Character = {
     name: "Agent Apple",
     username: "apple_xbt",
     plugins: [],
-    clients: [Clients.DIRECT],
+    clients: [Clients.TWITTER],
     modelProvider: ModelProviderName.OPENROUTER,
     settings: {
         secrets: {

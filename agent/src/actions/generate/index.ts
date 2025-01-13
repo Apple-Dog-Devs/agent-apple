@@ -2,7 +2,6 @@ import {
     type Action,
     ActionExample,
     composeContext,
-    Content,
     elizaLogger,
     HandlerCallback,
     IAgentRuntime,
@@ -10,18 +9,19 @@ import {
     ModelClass,
     State,
     generateText,
-    trimTokens,
 } from "@elizaos/core";
-import {
-    QueryTweetsResponse,
-    Scraper,
-    SearchMode,
-    Tweet,
-} from "agent-twitter-client";
+import { Scraper } from "agent-twitter-client";
 
 import { KEYWORDS, APPLE_DOG_DESCRIPTION } from "../../lib/constants.ts";
 import { TEMPLATES } from "../../lib/templates.ts";
 import { extractContent } from "../../lib/text.ts";
+import {
+    hasAnyQualifier,
+    getUsername,
+    hasMyWithQualifier,
+    getId,
+    fetchProfileAvatar,
+} from "../../lib/twitter.ts";
 
 import { initiateGeneration } from "../../lib/minimax.ts";
 import { watchGenerationStatus } from "../../lib/threadedWatcher.ts";
@@ -65,7 +65,8 @@ export const generateVideo: Action = {
         _options: { [key: string]: unknown },
         callback?: HandlerCallback
     ) => {
-        const scraper = new Scraper();
+        const twitterClient = runtime.clients.twitter?.client?.twitterClient;
+        const scraper = twitterClient || new Scraper();
 
         elizaLogger.log("Starting GENERATE_VIDEO...");
 
@@ -75,36 +76,74 @@ export const generateVideo: Action = {
             state = await runtime.updateRecentMessageState(state);
         }
 
-        const profile = await scraper.getProfile("Raleigh_CA");
-
-        console.log(profile);
-
-        return;
-
-        console.log("================================ message ", message);
-
-        const defaultBaseImage = runtime.getSetting("APPLE_DOG_IMAGE");
-        const apiKey = runtime.getSetting("MINIMAXI_API_KEY");
-
-        const hasAttachments = message.content.attachments?.length > 0;
-        const attachmentBaseImage =
-            hasAttachments && message.content.attachments[0]?.url;
-
-        const baseImage = attachmentBaseImage || defaultBaseImage;
-
         try {
+            // Inside the try block of your handler
+            const apiKey = runtime.getSetting("MINIMAXI_API_KEY");
+            const defaultBaseImage = runtime.getSetting("APPLE_DOG_IMAGE");
+
+            const tweetId = getId(state.currentPost as string);
+            const tweet = await twitterClient.getTweet(tweetId);
+            const hasAttachments = tweet.photos?.length > 0;
+
+            // Determine base image source with clear priority
+            let baseImage = defaultBaseImage;
+            let profileUsername = null;
+
+            // Priority order:
+            // 1. Check for "my" qualifier first (user's own profile)
+            if (hasMyWithQualifier(message.content.text)) {
+                profileUsername = tweet.username;
+                baseImage = await fetchProfileAvatar(profileUsername, scraper);
+                elizaLogger.log(
+                    `Using user's profile image for ${profileUsername}`
+                );
+            }
+
+            // 2. If no "my" qualifier, check for image attachment
+            else if (hasAnyQualifier(message.content.text)) {
+                const username = getUsername(message.content.text);
+                profileUsername = username;
+                baseImage = await fetchProfileAvatar(profileUsername, scraper);
+                elizaLogger.log(
+                    `Using specified profile image for ${profileUsername}`
+                );
+            }
+
+            // 3. If no attachment, check for other qualifiers (@username)
+            else if (hasAttachments) {
+                baseImage = tweet.photos[0].url;
+                elizaLogger.log("Using tweet attachment image");
+            }
+
+            // 4. Default to apple dog image (already set in baseImage)
+            elizaLogger.log(`Final base image source: ${baseImage}`);
+
             const base64Image = await toBase64(baseImage);
 
-            const initResult = await initiateGeneration({
-                key: apiKey,
-                prompt: `${message.content.text} ${hasAttachments && APPLE_DOG_DESCRIPTION}`,
-                base: base64Image,
-            });
+            // Construct prompt with appropriate context
+            const shouldAddDescription = hasAttachments || profileUsername;
+
+            // Generate response text
+            const userPrompt = message.content.text;
+            const getIntent = extractContent(userPrompt);
 
             console.log(
-                "========================================== init result: ",
-                initResult
+                "============================================ INTENT TEST"
             );
+            console.log(getIntent);
+            console.log(
+                "============================================ INTENT TEST"
+            );
+
+            const prompt = `${getIntent} ${shouldAddDescription ? APPLE_DOG_DESCRIPTION : ""}`;
+            elizaLogger.log(`Generated prompt: ${prompt}`);
+
+            // Initiate generation
+            const initResult = await initiateGeneration({
+                key: apiKey,
+                prompt,
+                base: base64Image,
+            });
 
             if (!initResult.taskId) {
                 throw new Error(
@@ -112,22 +151,20 @@ export const generateVideo: Action = {
                 );
             }
 
-            console.log(
-                "========================================== watch generation: ",
-                initResult
+            elizaLogger.log(
+                `Generation initiated with taskId: ${initResult.taskId}`
             );
+
+            // Watch the generation status
             const result = await watchGenerationStatus({
                 key: apiKey,
                 taskId: initResult.taskId,
                 userId: message.userId,
             });
 
-            const userPrompt = message.content.text;
-            const getIntent = extractContent(userPrompt);
-
             const context = composeContext({
                 state,
-                template: TEMPLATES.generationSuccess(getIntent),
+                template: TEMPLATES.generationSuccess,
             });
 
             const llmResponse = await generateText({
@@ -135,11 +172,6 @@ export const generateVideo: Action = {
                 context,
                 modelClass: ModelClass.SMALL,
             });
-
-            console.log(
-                "========================================== callback: ",
-                result
-            );
 
             if (callback) {
                 callback({
@@ -166,9 +198,20 @@ export const generateVideo: Action = {
                 `Error in generate video handler: ${error.message}`
             );
 
+            const context = composeContext({
+                state,
+                template: TEMPLATES.generationError,
+            });
+
+            const llmResponse = await generateText({
+                runtime,
+                context,
+                modelClass: ModelClass.SMALL,
+            });
+
             if (callback) {
                 callback({
-                    text: "Hmmm something went wrong. Please try again later.",
+                    text: llmResponse,
                 });
             }
             return false;

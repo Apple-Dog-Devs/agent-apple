@@ -30,6 +30,7 @@
         "@elizaos/client-discord": "workspace:*",
         "@elizaos/client-farcaster": "workspace:*",
         "@elizaos/client-lens": "workspace:*",
+        "@elizaos/client-slack": "workspace:*",
         "@elizaos/client-telegram": "workspace:*",
         "@elizaos/client-telegram-account": "workspace:*",
         "@elizaos/client-twitter": "workspace:*",
@@ -39,6 +40,7 @@
         "@elizaos/client-simsai": "workspace:*",
         "@elizaos/core": "workspace:*",
         "@elizaos/plugin-0g": "workspace:*",
+        "@elizaos/plugin-3d-generation": "workspace:*",
         "@elizaos/plugin-abstract": "workspace:*",
         "@elizaos/plugin-agentkit": "workspace:*",
         "@elizaos/plugin-aptos": "workspace:*",
@@ -158,9 +160,11 @@
     },
     "devDependencies": {
         "@types/jest": "^29.5.14",
+        "@types/node": "^22.10.5",
         "jest": "^29.7.0",
         "ts-jest": "^29.2.5",
         "ts-node": "10.9.2",
-        "tsup": "8.3.5"
+        "tsup": "8.3.5",
+        "typescript": "^5.7.3"
     }
 }
