@@ -164,7 +164,7 @@ export const generateVideo: Action = {
 
             const context = composeContext({
                 state,
-                template: TEMPLATES.generationSuccess,
+                template: TEMPLATES.generationSuccess(message.content.text),
             });
 
             const llmResponse = await generateText({
@@ -243,20 +243,41 @@ export const generateVideo: Action = {
             {
                 user: "{{user1}}",
                 content: {
-                    text: "dog with apple swings in nyc with spiderman",
+                    text: "create a video with @solgavo profile picture.",
                 },
             },
             {
                 user: "{{user2}}",
                 content: {
-                    text: "generating a video of a dog with apple swinging in nyc with spiderman",
+                    text: "generating a video of @solgavo's profile picture.",
                     action: "GENERATE_VIDEO",
                 },
             },
             {
                 user: "{{user2}}",
                 content: {
-                    text: "here's your video of dog with apple swinging in nyc with spiderman! $apple",
+                    text: "here's your video of apple dog with @solgavo",
+                },
+            },
+        ],
+        [
+            {
+                user: "{{user1}}",
+                content: {
+                    text: "generate a video of apple dog and the incredible hulk",
+                },
+            },
+            {
+                user: "{{user2}}",
+                content: {
+                    text: "generating a video of apple dog and the incredible hulk",
+                    action: "GENERATE_VIDEO",
+                },
+            },
+            {
+                user: "{{user2}}",
+                content: {
+                    text: "something went wrong generating a video of apple dog and the incredible hulk",
                 },
             },
         ],
