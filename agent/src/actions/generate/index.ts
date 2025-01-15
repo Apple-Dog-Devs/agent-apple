@@ -36,7 +36,7 @@ const calculateRemainingTime = (time: number) => {
 };
 
 export const generateVideo: Action = {
-    //suppressInitialMessage: true,
+    suppressInitialMessage: true,
     name: "GENERATE_VIDEO",
     similes: [
         "MAKE_VIDEO",
