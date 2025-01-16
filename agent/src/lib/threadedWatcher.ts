@@ -1,7 +1,7 @@
 import { checkGenerationStatus } from "./minimax";
 import { elizaLogger } from "@elizaos/core";
 
-interface StatusResult {
+export interface StatusResult {
     status: string;
     downloadUrl?: string;
     fileId?: string;

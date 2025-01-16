@@ -22,8 +22,8 @@ interface RateLimitProps {
 }
 
 export async function checkRateLimit({
-    userId,
-}: RateLimitProps): Promise<RateLimitResponse> {
+                                         userId,
+                                     }: RateLimitProps): Promise<RateLimitResponse> {
     try {
         const { success, limit, reset, remaining } =
             await ratelimit.limit(userId);

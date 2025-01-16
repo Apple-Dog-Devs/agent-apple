@@ -160,7 +160,8 @@ import { quickIntelPlugin } from "@elizaos/plugin-quick-intel";
 import { trikonPlugin } from "@elizaos/plugin-trikon";
 import arbitragePlugin from "@elizaos/plugin-arbitrage";
 import { mainCharacter } from "./mainCharacter";
-import { generateVideo } from "./actions/generate";
+
+import { generateVideo } from "./actions/generate.ts";
 
 const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
 const __dirname = path.dirname(__filename); // get the name of the directory
@@ -1061,11 +1062,6 @@ export async function createAgent(
                 ? solanaAgentkitPlugin
                 : null,
             getSecret(character, "AUTONOME_JWT_TOKEN") ? autonomePlugin : null,
-            (getSecret(character, "NEAR_ADDRESS") ||
-                getSecret(character, "NEAR_WALLET_PUBLIC_KEY")) &&
-            getSecret(character, "NEAR_WALLET_SECRET_KEY")
-                ? nearPlugin
-                : null,
             getSecret(character, "EVM_PUBLIC_KEY") ||
             (getSecret(character, "WALLET_PUBLIC_KEY") &&
                 getSecret(character, "WALLET_PUBLIC_KEY")?.startsWith("0x"))

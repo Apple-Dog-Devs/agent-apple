@@ -1,6 +1,20 @@
 import { promises as fs } from "fs";
 import path from "path";
 
+const getContentType = (filepath: string): string => {
+    const ext = path.extname(filepath).toLowerCase();
+    const contentTypes: { [key: string]: string } = {
+        ".png": "image/png",
+        ".jpg": "image/jpeg",
+        ".jpeg": "image/jpeg",
+        ".gif": "image/gif",
+        ".webp": "image/webp",
+        ".svg": "image/svg+xml",
+    };
+
+    return contentTypes[ext] || "image/jpeg";
+};
+
 export const toBase64 = async (imagePath: string): Promise<string> => {
     try {
         let buffer: Buffer;
@@ -27,17 +41,3 @@ export const toBase64 = async (imagePath: string): Promise<string> => {
         throw error;
     }
 };
-
-function getContentType(filepath: string): string {
-    const ext = path.extname(filepath).toLowerCase();
-    const contentTypes: { [key: string]: string } = {
-        ".png": "image/png",
-        ".jpg": "image/jpeg",
-        ".jpeg": "image/jpeg",
-        ".gif": "image/gif",
-        ".webp": "image/webp",
-        ".svg": "image/svg+xml",
-    };
-
-    return contentTypes[ext] || "image/jpeg";
-}

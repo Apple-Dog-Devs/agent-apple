@@ -1,4 +1,6 @@
-"use server";
+import { watchGenerationStatus, StatusResult } from "./threadedWatcher.ts";
+import { elizaLogger } from "@elizaos/core";
+import { toBase64 } from "./base64.ts";
 
 const MODEL = "video-01";
 const BASE_URL = "https://api.minimaxi.chat/v1";
@@ -22,11 +24,22 @@ interface StatusResponse {
     message?: string;
 }
 
+interface GenerateVideoProps {
+    apiKey: string;
+    prompt: string;
+    baseImage: string;
+    userId: string;
+}
+
+interface GenerateVideoResult {
+    result: StatusResult;
+}
+
 export async function initiateGeneration({
-    key,
-    prompt,
-    base,
-}: GenerateVideoParams): Promise<InitResponse> {
+                                             key,
+                                             prompt,
+                                             base,
+                                         }: GenerateVideoParams): Promise<InitResponse> {
     try {
         const response = await fetch(`${BASE_URL}/video_generation`, {
             method: "POST",
@@ -66,9 +79,9 @@ export async function initiateGeneration({
 }
 
 export async function checkGenerationStatus({
-    key,
-    taskId,
-}): Promise<StatusResponse> {
+                                                key,
+                                                taskId,
+                                            }): Promise<StatusResponse> {
     try {
         const queryResponse = await fetch(
             `${BASE_URL}/query/video_generation?task_id=${taskId}`,
@@ -131,3 +144,35 @@ export async function checkGenerationStatus({
         };
     }
 }
+
+export const generateVideo = async ({
+                                        apiKey,
+                                        prompt,
+                                        baseImage,
+                                        userId,
+                                    }: GenerateVideoProps): Promise<GenerateVideoResult> => {
+    // Convert image to base64
+    const base64Image = await toBase64(baseImage);
+
+    // Initiate generation
+    const initResult = await initiateGeneration({
+        key: apiKey,
+        prompt,
+        base: base64Image,
+    });
+
+    if (!initResult.taskId) {
+        throw new Error(initResult.error || "Failed to start generation");
+    }
+
+    elizaLogger.log(`Generation initiated with taskId: ${initResult.taskId}`);
+
+    // Watch the generation status
+    const result = await watchGenerationStatus({
+        key: apiKey,
+        taskId: initResult.taskId,
+        userId,
+    });
+
+    return { result };
+};
