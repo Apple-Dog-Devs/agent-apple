@@ -32,7 +32,6 @@ export const tokenEvaluator: Evaluator = {
     handler: async (runtime, message): Promise<number> => {
         console.log("Evaluating for trust");
         const state = await runtime.composeState(message);
-        const { agentId, roomId } = state;
 
         const shouldProcessContext = composeContext({
             state,

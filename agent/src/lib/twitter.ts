@@ -1,12 +1,10 @@
 import { elizaLogger } from "@elizaos/core";
 import { Scraper } from "agent-twitter-client";
 
-import { APPLE_DOG_DESCRIPTION } from "./constants.ts";
+import { APPLE_DOG_DESCRIPTION, QUALIFIERS } from "./constants.ts";
 
-import { extractContent } from "./text.ts";
+import { getIntent, extractContent } from "./text.ts";
 import { generateVideo } from "./minimax.ts";
-
-const QUALIFIERS = ["profile", "profile picture", "pfp"];
 
 interface TwitterResponseProps {
     state: any;
@@ -31,15 +29,9 @@ export function hasMyWithQualifier(text: string) {
     return regex.test(text);
 }
 
-export const getUsername = (text: string) => {
-    if (hasAnyQualifier(text)) {
-        const qualifierPattern = QUALIFIERS.join("|");
-        const match = text.match(
-            new RegExp(`with\\s+@(\\w+)\\s+(${qualifierPattern})`, "i")
-        );
-        return match?.[1] || null;
-    }
-    return null;
+export const getUsername = (text: string): string | null => {
+    const match = text.match(/@(\w+)/);
+    return match ? match[1] : null; // Extract the username (without @) or return null
 };
 
 export const getId = (text: string) => {
@@ -68,66 +60,94 @@ export const twitterResponse = async ({
                                           runtime,
                                           apiKey,
                                       }: TwitterResponseProps): Promise<TwitterResponseResult> => {
-    const defaultBaseImage = runtime.getSetting("APPLE_DOG_IMAGE");
+    try {
+        const defaultBaseImage = runtime.getSetting("APPLE_DOG_IMAGE");
 
-    const twitterClient = runtime.clients.twitter?.client?.twitterClient;
-    const scraper = twitterClient || new Scraper();
+        const twitterClient = runtime.clients.twitter?.client?.twitterClient;
+        const scraper = twitterClient || new Scraper();
+        elizaLogger.log("Twitter client initialized");
 
-    const tweetId = getId(state.currentPost as string);
-    const tweet = await twitterClient.getTweet(tweetId);
-    const hasAttachments = tweet.photos?.length > 0;
+        let tweet;
+        try {
+            const tweetId = getId(state.currentPost as string);
+            tweet = await twitterClient.getTweet(tweetId);
+            elizaLogger.log("Tweet fetched successfully");
+        } catch (tweetError) {
+            elizaLogger.error("Error fetching tweet:", tweetError);
+            throw new Error(`Failed to fetch tweet: ${tweetError.message}`);
+        }
 
-    // Determine base image source with clear priority
-    let baseImage = defaultBaseImage;
-    let profileUsername = null;
+        // Extract command text early
+        const userPrompt = message.content.text;
+        const content = extractContent(userPrompt);
+        elizaLogger.log("Extracted content:", content);
 
-    // Priority order:
-    // 1. Check for "my" qualifier first (user's own profile)
-    if (hasMyWithQualifier(message.content.text)) {
-        profileUsername = tweet.username;
-        baseImage = await fetchProfileAvatar(profileUsername, scraper);
-        elizaLogger.log(`Using user's profile image for ${profileUsername}`);
+        const hasAttachments = tweet.photos?.length > 0;
+        let baseImage = defaultBaseImage;
+        let profileUsername = null;
+
+        try {
+            // Priority order:
+            // 1. Check for "my" qualifier first (user's own profile)
+            if (hasMyWithQualifier(content)) {
+                profileUsername = tweet.username;
+                baseImage = await fetchProfileAvatar(profileUsername, scraper);
+                elizaLogger.log(
+                    `Using user's profile image for ${profileUsername}`
+                );
+            }
+
+            // 2. If no "my" qualifier, check for image attachment
+            else if (hasAnyQualifier(content)) {
+                profileUsername = getUsername(content);
+                baseImage = await fetchProfileAvatar(profileUsername, scraper);
+                elizaLogger.log(
+                    `Using specified profile image for ${profileUsername}`
+                );
+            }
+
+            // 3. If no attachment, check for other qualifiers (@username)
+            else if (hasAttachments) {
+                baseImage = tweet.photos[0].url;
+                elizaLogger.log("Using tweet attachment image");
+            }
+        } catch (imageError) {
+            elizaLogger.error("Error fetching profile/image:", imageError);
+            elizaLogger.log("Falling back to default base image");
+            baseImage = defaultBaseImage;
+        }
+
+        // 4. Default to apple dog image (already set in baseImage)
+        elizaLogger.log(`Final base image source: ${baseImage}`);
+
+        // Construct prompt with appropriate context
+        const shouldAddDescription = hasAttachments || profileUsername;
+
+        try {
+            const intent = getIntent(content);
+            elizaLogger.log("Extracted intent:", intent);
+
+            const prompt = `${content} ${shouldAddDescription ? APPLE_DOG_DESCRIPTION : ""}`;
+            elizaLogger.log(`Generated prompt: ${prompt}`);
+
+            const { result } = await generateVideo({
+                apiKey,
+                prompt,
+                baseImage,
+                userId: message.userId,
+            });
+
+            elizaLogger.log("Video generation completed successfully");
+
+            return { result };
+        } catch (videoError) {
+            elizaLogger.error("Error generating video:", videoError);
+            throw new Error(`Video generation failed: ${videoError.message}`);
+        }
+    } catch (error) {
+        elizaLogger.error("Fatal error in twitterResponse:", error);
+        return {
+            result: null,
+        };
     }
-
-    // 2. If no "my" qualifier, check for image attachment
-    else if (hasAnyQualifier(message.content.text)) {
-        const username = getUsername(message.content.text);
-        profileUsername = username;
-        baseImage = await fetchProfileAvatar(profileUsername, scraper);
-        elizaLogger.log(`Using specified profile image for ${profileUsername}`);
-    }
-
-    // 3. If no attachment, check for other qualifiers (@username)
-    else if (hasAttachments) {
-        baseImage = tweet.photos[0].url;
-        elizaLogger.log("Using tweet attachment image");
-    }
-
-    // 4. Default to apple dog image (already set in baseImage)
-    elizaLogger.log(`Final base image source: ${baseImage}`);
-
-    // Construct prompt with appropriate context
-    const shouldAddDescription = hasAttachments || profileUsername;
-
-    // Generate response text
-    const userPrompt = message.content.text;
-    const getIntent = extractContent(userPrompt);
-
-    console.log("============================================ INTENT TEST");
-    console.log(getIntent);
-    console.log("============================================ INTENT TEST");
-
-    const prompt = `${getIntent} ${shouldAddDescription ? APPLE_DOG_DESCRIPTION : ""}`;
-    elizaLogger.log(`Generated prompt: ${prompt}`);
-
-    const { result } = await generateVideo({
-        apiKey,
-        prompt,
-        baseImage,
-        userId: message.userId,
-    });
-
-    return {
-        result,
-    };
 };

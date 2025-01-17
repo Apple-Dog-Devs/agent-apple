@@ -47,8 +47,6 @@ export const generateVideo: Action = {
         _options: { [key: string]: unknown },
         callback?: HandlerCallback
     ) => {
-        let result;
-
         elizaLogger.log("Starting GENERATE_VIDEO...");
 
         if (!state) {
@@ -60,24 +58,12 @@ export const generateVideo: Action = {
         const apiKey = runtime.getSetting("MINIMAXI_API_KEY");
 
         try {
-            if (message.content.source === "twitter") {
-                const twitterResult = await twitterResponse({
-                    state,
-                    message,
-                    runtime,
-                    apiKey,
-                });
-
-                result = twitterResult.result;
-            } else if (message.content.source === "telegram") {
-                const telegramResult = await telegramResponse({
-                    message,
-                    runtime,
-                    apiKey,
-                });
-
-                result = telegramResult.result;
-            }
+            const { result } = await twitterResponse({
+                state,
+                message,
+                runtime,
+                apiKey,
+            });
 
             const context = composeContext({
                 state,
