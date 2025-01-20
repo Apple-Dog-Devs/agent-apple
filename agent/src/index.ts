@@ -160,7 +160,7 @@ import { quickIntelPlugin } from "@elizaos/plugin-quick-intel";
 import { trikonPlugin } from "@elizaos/plugin-trikon";
 import arbitragePlugin from "@elizaos/plugin-arbitrage";
 import { mainCharacter } from "./mainCharacter";
-
+import { TweetCron, CustomTwitterClient } from "./communication/client.ts";
 import { generateVideo } from "./actions/generate.ts";
 
 const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
@@ -836,6 +836,8 @@ export async function initializeClients(
         const twitterClient = await TwitterClientInterface.start(runtime);
         if (twitterClient) {
             clients.twitter = twitterClient;
+
+            new TweetCron(twitterClient as CustomTwitterClient, runtime);
         }
     }
 

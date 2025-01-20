@@ -15,7 +15,6 @@ import {
 import { KEYWORDS, TEMPLATES } from "../lib/constants.ts";
 
 import { twitterResponse } from "../lib/twitter.ts";
-import { telegramResponse } from "../lib/telegram.ts";
 
 export const generateVideo: Action = {
     suppressInitialMessage: true,
@@ -28,17 +27,22 @@ export const generateVideo: Action = {
         "MAKE_APPLEDOG_VIDEO",
         "GENERATE_APPLE_DOG_VIDEO",
         "MAKE_APPLE_DOG_VIDEO",
+        "VIDEO_GENERATION",
+        "VIDEO_GEN",
+        "GENERATE_VIDEO",
+        "GENERATE_A",
+        "DRAW",
+        "DRAW_A",
+        "MAKE_A",
     ],
     description:
         "create custom videos featuring the “Apple Dog” character based on user-provided prompts",
     validate: async (runtime: IAgentRuntime, message: Memory) => {
         const text = message.content.text.toLowerCase();
 
-        const containsKeyword = KEYWORDS.some((keyword) =>
+        return KEYWORDS.some((keyword) =>
             text.includes(keyword)
         );
-
-        return containsKeyword;
     },
     handler: async (
         runtime: IAgentRuntime,
