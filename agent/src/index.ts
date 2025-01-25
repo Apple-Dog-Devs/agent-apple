@@ -804,6 +804,8 @@ export async function initializeClients(
         character.clients?.map((str) => str.toLowerCase()) || [];
     elizaLogger.log("initializeClients", clientTypes, "for", character.name);
 
+    let twitterClient;
+
     // Start Auto Client if "auto" detected as a configured client
     if (clientTypes.includes(Clients.AUTO)) {
         const autoClient = await AutoClientInterface.start(runtime);
@@ -833,11 +835,10 @@ export async function initializeClients(
     }
 
     if (clientTypes.includes(Clients.TWITTER)) {
-        const twitterClient = await TwitterClientInterface.start(runtime);
+        twitterClient = await TwitterClientInterface.start(runtime);
+
         if (twitterClient) {
             clients.twitter = twitterClient;
-
-            new TweetCron(twitterClient as CustomTwitterClient, runtime);
         }
     }
 
@@ -917,6 +918,8 @@ export async function initializeClients(
             }
         }
     }
+
+    // new TweetCron(twitterClient as CustomTwitterClient, runtime);
 
     return clients;
 }

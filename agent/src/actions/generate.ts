@@ -27,13 +27,6 @@ export const generateVideo: Action = {
         "MAKE_APPLEDOG_VIDEO",
         "GENERATE_APPLE_DOG_VIDEO",
         "MAKE_APPLE_DOG_VIDEO",
-        "VIDEO_GENERATION",
-        "VIDEO_GEN",
-        "GENERATE_VIDEO",
-        "GENERATE_A",
-        "DRAW",
-        "DRAW_A",
-        "MAKE_A",
     ],
     description:
         "create custom videos featuring the “Apple Dog” character based on user-provided prompts",

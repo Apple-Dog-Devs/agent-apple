@@ -1,5 +1,8 @@
-import { watchGenerationStatus, StatusResult } from "./threadedWatcher.ts";
 import { elizaLogger } from "@elizaos/core";
+import fs from "fs";
+
+import { watchGenerationStatus, StatusResult } from "./threadedWatcher.ts";
+import { addAudio } from "./audio.ts";
 import { toBase64 } from "./base64.ts";
 
 const MODEL = "video-01";
@@ -114,11 +117,13 @@ export async function checkGenerationStatus({
             }
 
             const fileData = await fileResponse.json();
+
             return {
                 status: "success",
                 downloadUrl: fileData.file.download_url,
                 fileId: queryResult.file_id,
             };
+
         } else if (queryResult.status === "Fail") {
             return {
                 status: "fail",

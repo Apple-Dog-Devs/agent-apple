@@ -2,6 +2,7 @@ import { elizaLogger, IAgentRuntime } from "@elizaos/core";
 
 import { generateVideo } from "../lib/minimax.ts";
 import { PROMPTS } from "../lib/constants.ts";
+import {DiscordClient} from "@elizaos/client-discord";
 
 interface TwitterPostClient {
     sendTweet: (
@@ -24,7 +25,7 @@ export class TweetCron {
     private intervalId?: NodeJS.Timeout;
     private runtime: IAgentRuntime;
 
-    private readonly DEFAULT_INTERVAL = 8 * 60 * 60 * 1000;
+    private readonly DEFAULT_INTERVAL = 6 * 60 * 60 * 1000;
 
     constructor(twitterClient: CustomTwitterClient, runtime: IAgentRuntime) {
         this.twitterClient = twitterClient;
