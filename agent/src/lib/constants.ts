@@ -1,4 +1,4 @@
-export const KEYWORDS = ["generate", "make", "create", "video"];
+export const KEYWORDS = ["generate", "make", "create", "video", "draw", 'incorporate'];
 
 export const QUALIFIERS = ["profile", "profile picture", "pfp", 'profile pic'];
 

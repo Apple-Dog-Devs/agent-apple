@@ -1,9 +1,9 @@
 import { elizaLogger } from "@elizaos/core";
-import fs from "fs";
 
 import { watchGenerationStatus, StatusResult } from "./threadedWatcher.ts";
 import { addAudio } from "./audio.ts";
 import { toBase64 } from "./base64.ts";
+// import { uploadToMux } from "./mux.ts";
 
 const MODEL = "video-01";
 const BASE_URL = "https://api.minimaxi.chat/v1";
@@ -117,10 +117,11 @@ export async function checkGenerationStatus({
             }
 
             const fileData = await fileResponse.json();
+            const videoWithAudio = await addAudio(fileData.file.download_url);
 
             return {
                 status: "success",
-                downloadUrl: fileData.file.download_url,
+                downloadUrl: videoWithAudio,
                 fileId: queryResult.file_id,
             };
 
