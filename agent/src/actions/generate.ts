@@ -15,6 +15,7 @@ import {
 import { KEYWORDS, TEMPLATES } from "../lib/constants.ts";
 
 import { twitterResponse } from "../lib/twitter.ts";
+import { cleanupAllTempFiles } from "../lib/cleanup.ts";
 
 export const generateVideo: Action = {
     suppressInitialMessage: true,
@@ -96,6 +97,8 @@ export const generateVideo: Action = {
 
                 callback(callbackData);
             }
+
+            await cleanupAllTempFiles();
 
             return true;
         } catch (error) {
