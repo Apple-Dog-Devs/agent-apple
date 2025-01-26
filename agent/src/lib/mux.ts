@@ -8,7 +8,6 @@ interface MuxUploadResponse {
     message?: string;
 }
 
-
 const waitForThreeSeconds = () =>
     new Promise((resolve) => setTimeout(resolve, 3000));
 
