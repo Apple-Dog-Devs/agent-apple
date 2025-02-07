@@ -3,7 +3,6 @@ import { elizaLogger } from "@elizaos/core";
 import { watchGenerationStatus, StatusResult } from "./threadedWatcher.ts";
 import { addAudio } from "./audio.ts";
 import { toBase64 } from "./base64.ts";
-import { cleanupAllTempFiles } from "./cleanup.ts";
 
 const MODEL = "video-01";
 const BASE_URL = "https://api.minimaxi.chat/v1";
@@ -148,8 +147,6 @@ export async function checkGenerationStatus({
                     ? error.message
                     : "Failed to check generation status",
         };
-    } finally {
-        await cleanupAllTempFiles();
     }
 }
 

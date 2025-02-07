@@ -15033,6 +15033,10 @@ packages:
   agent-twitter-client@0.0.18:
     resolution: {integrity: sha512-HncH5mlFcGYLEl5wNEkwtdolcmdxqEMIsqO4kTqiTp5P19O25Zr4P6LNJZz1UTjPRyXDxj+BLmmk/Ou7O0QzEg==}
 
+  agent-twitter-client@https://codeload.github.com/elizaOS/agent-twitter-client/tar.gz/ce7e1eeabd6d1d7cf536fe86ad11d946d502348c:
+    resolution: {tarball: https://codeload.github.com/elizaOS/agent-twitter-client/tar.gz/ce7e1eeabd6d1d7cf536fe86ad11d946d502348c}
+    version: 0.0.18
+
   agentkeepalive@4.6.0:
     resolution: {integrity: sha512-kja8j7PjmncONqaTsB8fQ+wE2mSU2DJ9D4XKoJ5PFWIdRMa6SLSN1ff4mOr4jCbfRSsxR4keIiySJU0N9T5hIQ==}
     engines: {node: '>= 8.0.0'}
@@ -49191,6 +49195,23 @@ snapshots:
       tslib: 2.8.1
       twitter-api-v2: 1.19.1
       undici: 7.3.0
+      ws: 8.18.0(bufferutil@4.0.9)(utf-8-validate@6.0.5)
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+
+  agent-twitter-client@https://codeload.github.com/elizaOS/agent-twitter-client/tar.gz/ce7e1eeabd6d1d7cf536fe86ad11d946d502348c(bufferutil@4.0.9)(utf-8-validate@6.0.5):
+    dependencies:
+      '@roamhq/wrtc': 0.8.0
+      '@sinclair/typebox': 0.32.35
+      headers-polyfill: 3.3.0
+      json-stable-stringify: 1.2.1
+      otpauth: 9.3.6
+      set-cookie-parser: 2.7.1
+      tough-cookie: 4.1.4
+      twitter-api-v2: 1.19.0
+      undici: 7.2.3
+      undici-types: 7.3.0
       ws: 8.18.0(bufferutil@4.0.9)(utf-8-validate@6.0.5)
     transitivePeerDependencies:
       - bufferutil

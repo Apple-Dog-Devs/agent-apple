@@ -11,7 +11,6 @@ import {
     State,
     generateText,
 } from "@elizaos/core";
-
 import { KEYWORDS, TEMPLATES } from "../lib/constants.ts";
 
 import { twitterResponse } from "../lib/twitter.ts";
@@ -82,7 +81,6 @@ export const generateVideo: Action = {
                 const callbackData: Content = {
                     text: llmResponse,
                     action: "GENERATE_VIDEO",
-                    inReplyTo: message.content.inReplyTo,
                 };
 
                 if (result) {

@@ -265,7 +265,7 @@ export class TwitterSpaceClient {
                     Math.floor(
                         Math.random() * this.decisionOptions.topics.length
                     )
-                ];
+                    ];
         }
 
         return {
@@ -444,7 +444,7 @@ export class TwitterSpaceClient {
             const elapsedMinutes = (now - (this.startedAt || 0)) / 60000;
             if (
                 elapsedMinutes >
-                    (this.decisionOptions.typicalDurationMinutes ?? 30) ||
+                (this.decisionOptions.typicalDurationMinutes ?? 30) ||
                 (numSpeakers === 0 &&
                     totalListeners === 0 &&
                     elapsedMinutes > 5)
@@ -474,7 +474,7 @@ export class TwitterSpaceClient {
         while (
             this.speakerQueue.length > 0 &&
             this.activeSpeakers.length < ms
-        ) {
+            ) {
             const nextReq = this.speakerQueue.shift();
             if (nextReq) {
                 await speakFiller(

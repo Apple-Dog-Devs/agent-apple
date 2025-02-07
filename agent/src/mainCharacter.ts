@@ -4,8 +4,9 @@ export const mainCharacter: Character = {
     name: "Agent Apple",
     username: "apple_xbt",
     plugins: [],
-    clients: [Clients.TWITTER, Clients.AUTO],
+    clients: [Clients.AUTO, Clients.TELEGRAM],
     modelProvider: ModelProviderName.OPENROUTER,
+    imageVisionModelProvider: ModelProviderName.OPENAI,
     settings: {
         secrets: {
             MINIMAXI_API_KEY: process.env.MINIMAXI_API_KEY,
@@ -20,6 +21,10 @@ export const mainCharacter: Character = {
                 style: process.env.ELEVENLABS_VOICE_STYLE,
             },
         },
+        modelConfig: {
+            temperature: 0.7,
+            maxInputTokens: 1000,
+        }
     },
     bio: [
         "apple dog is a dog with an apple in its mouth.",
@@ -232,4 +237,21 @@ export const mainCharacter: Character = {
         "composed",
         "charismatic",
     ],
+    twitterSpaces: {
+        maxSpeakers: 1,
+        topics: ["$APPLE $APPLE $APPLE", "Apple Dog's Space"],
+        typicalDurationMinutes: 45,
+        idleKickTimeoutMs: 300000,
+        minIntervalBetweenSpacesMinutes: 60,
+        businessHoursOnly: false,
+        randomChance: 1,
+        enableIdleMonitor: true,
+        enableSttTts: true,
+        enableRecording: false,
+        voiceId: "AJQPELzBvuhZ12ovJU0n",
+        sttLanguage: "en",
+        gptModel: "openai/gpt-4-turbo",
+        systemPrompt: "You are a helpful AI co-host assistant.",
+        speakerMaxDurationMs: 240000,
+    },
 };
