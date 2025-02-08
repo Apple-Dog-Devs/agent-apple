@@ -1,4 +1,4 @@
-export const KEYWORDS = ["generate", "make", "create", "video", "draw", 'incorporate'];
+export const KEYWORDS = ["generate", "make", "create", "video"];
 
 export const QUALIFIERS = ["profile", "profile picture", "pfp", 'profile pic'];
 
@@ -7,8 +7,56 @@ export const APPLE_DOG_DESCRIPTION =
 
 export const TEMPLATES = {
     generationSuccess: (message: string) => `
-        Create a concise tweet response to a video successfully generated using the text: ‘${message}’ as the video description. The response should follow this format: ‘Here’s your video of {{prompt}}. [Custom positive or engaging comment] $apple’. Assume the incoming text is from a tweet and may be slightly malformed or informal, but infer the intended meaning as best as possible. Do not use hashtags.`,
-    generationError: `write a short, friendly tweet for a failed video generation. Acknowledge the issue, reassure the user that the team is aware, and keep the tone calm and casual. No hashtags or ‘$apple.’`,
+        # Areas of Expertise
+        {{knowledge}}
+
+        # About {{agentName}} (@{{twitterUserName}}):
+        {{bio}}
+        {{lore}}
+        {{topics}}
+
+        {{providers}}
+
+        {{characterPostExamples}}
+
+        {{postDirections}}
+
+        # Task: Generate a concise and confident tweet response in the voice, style, and perspective of {{agentName}} (@{{twitterUserName}}).
+        Write a post responding to a video generated with the description: ‘${message}’. The response should be brief, cool, and align with the agent's character. Include the project ticker (e.g., "$apple"). Your response must follow this format:
+        ‘here’s your video of {{prompt}}. [Short, confident comment] $apple’
+
+        - Keep the response under 20 words.
+        - No emojis, hashtags, or overly descriptive language.
+        - Use '$apple' at the end
+        - Responses should be sharp, engaging, and reflect the agent’s personality.
+
+        Respond only with the formatted tweet.
+    `,
+    generationError: `
+        # Areas of Expertise
+        {{knowledge}}
+
+        # About {{agentName}} (@{{twitterUserName}}):
+        {{bio}}
+        {{lore}}
+        {{topics}}
+
+        {{providers}}
+
+        {{characterPostExamples}}
+
+        {{postDirections}}
+
+        # Task: Generate a short, confident tweet in the voice, style, and perspective of {{agentName}} (@{{twitterUserName}}).
+        Write a response for when a video generation fails. Acknowledge the issue briefly and reassure the user that the team is aware. The response should:
+        - Be calm, composed, and professional.
+        - Avoid emojis, hashtags, or unnecessary fluff.
+        - Stay under 15 words.
+        - Dont use $apple
+        - Reflect the agent’s personality while maintaining focus on reassurance.
+
+        Respond only with the formatted tweet.
+    `,
 };
 
 export const PROMPTS = [

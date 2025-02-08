@@ -15,12 +15,13 @@ import {
 import { KEYWORDS, TEMPLATES } from "../lib/constants.ts";
 
 import { twitterResponse } from "../lib/twitter.ts";
-import { cleanupAllTempFiles } from "../lib/cleanup.ts";
+import {extractContent} from "../lib/text.ts";
 
 export const generateVideo: Action = {
     suppressInitialMessage: true,
     name: "GENERATE_VIDEO",
     similes: [
+        'GENERATE_VIDEO',
         "MAKE_VIDEO",
         "CREATE_VIDEO",
         "PRODUCE_VIDEO",
@@ -28,11 +29,14 @@ export const generateVideo: Action = {
         "MAKE_APPLEDOG_VIDEO",
         "GENERATE_APPLE_DOG_VIDEO",
         "MAKE_APPLE_DOG_VIDEO",
+        'MAKE_A',
+        'DRAW_'
     ],
     description:
         "create custom videos featuring the “Apple Dog” character based on user-provided prompts",
     validate: async (runtime: IAgentRuntime, message: Memory) => {
-        const text = message.content.text.toLowerCase();
+        const content = extractContent(message.content.text);
+        const text = content.toLowerCase();
 
         return KEYWORDS.some((keyword) =>
             text.includes(keyword)
@@ -97,8 +101,6 @@ export const generateVideo: Action = {
 
                 callback(callbackData);
             }
-
-            await cleanupAllTempFiles();
 
             return true;
         } catch (error) {
